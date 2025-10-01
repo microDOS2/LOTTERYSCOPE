@@ -81,12 +81,19 @@
             width: 40px;
             height: 40px;
         }
+        .lottery-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .lottery-btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
     </style>
 </head>
 <body class="celestial-gradient text-white min-h-screen flex items-center justify-center p-4">
     <main class="w-full max-w-2xl mx-auto">
         <div class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold mb-2 text-[#D30831]">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2" style="color: rgb(211, 8, 49);">
                 Cosmic Lucky Lottery Guide
             </h1>
             <p class="text-green-200 text-lg">Align your birth chart with the stars for ultimate luck!</p>
@@ -152,14 +159,24 @@
         <!-- Result Container -->
         <div id="result-container" class="card-bg p-6 rounded-2xl shadow-2xl opacity-0 transform scale-95 -translate-y-5 hidden">
             <h2 class="text-2xl font-semibold text-center mb-4 text-green-300">Your Auspicious Days</h2>
-            <p class="text-center text-green-200 mb-6 -mt-2">Click a day below to reveal your lucky numbers for that day.</p>
+            <p class="text-center text-green-200 mb-6 -mt-2">Click a day below to choose your lottery game.</p>
             
             <div id="results-list" class="space-y-3 max-h-96 overflow-y-auto pr-2 mb-6">
                 <!-- Auspicious moments will be listed here -->
             </div>
             
-            <div id="lucky-numbers-container" class="my-6 text-center hidden border-t border-green-400/20 pt-6">
-                <p id="lucky-numbers-title" class="text-green-200 mb-2">Your Lucky Numbers for the Selected Date:</p>
+            <!-- NEW: Lottery Choice Container -->
+            <div id="lottery-choice-container" class="my-6 text-center hidden border-t border-green-400/20 pt-6">
+                <p class="text-green-200 mb-4 font-semibold">Choose your game to reveal numbers for the selected day:</p>
+                <div class="flex justify-center items-center gap-3 flex-wrap">
+                    <button data-lotto-type="powerball" class="lottery-btn bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full">Powerball</button>
+                    <button data-lotto-type="megamillions" class="lottery-btn bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full">Mega Millions</button>
+                    <button data-lotto-type="state" class="lottery-btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full">State Lottery</button>
+                </div>
+            </div>
+
+            <div id="lucky-numbers-container" class="my-6 text-center hidden">
+                <p id="lucky-numbers-title" class="text-green-200 mb-2">Your Lucky Numbers:</p>
                 <div id="lucky-numbers" class="flex justify-center items-center gap-3 flex-wrap">
                     <!-- Lucky numbers will be injected here -->
                 </div>
@@ -188,14 +205,16 @@
             const resultContainer = document.getElementById('result-container');
             const resultsList = document.getElementById('results-list');
             
+            const lotteryChoiceContainer = document.getElementById('lottery-choice-container');
             const luckyNumbersContainer = document.getElementById('lucky-numbers-container');
             const luckyNumbersDisplay = document.getElementById('lucky-numbers');
             const luckyNumbersTitle = document.getElementById('lucky-numbers-title');
 
             let selectedSign = null;
             let currentNatalChart = null;
+            let selectedDate = null;
             
-            const iconColor = "#F8D000"; // The user-specified yellow
+            const iconColor = "#F8D000";
 
             const zodiacSigns = [
                 { name: 'Aries', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 75V50C25 25 75 25 75 50V75M50 100V40"/></svg>` },
@@ -211,19 +230,9 @@
                 { name: 'Aquarius', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 35l15-15 15 15 15-15 15 15M20 65l15-15 15 15 15-15 15 15"/></svg>` },
                 { name: 'Pisces', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 20c-20 20 0 60 0 60M75 20c20 20 0 60 0 60M20 50h60"/></svg>` }
             ];
-
-            const usStatesAndTerritories = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "American Samoa", "Guam", "Northern Mariana Islands", "Puerto Rico", "U.S. Virgin Islands"];
-
-            const timezones = [
-                { name: "Hawaii Time (HT)", value: "HST" }, { name: "Alaska Time (AKT)", value: "AKST" },
-                { name: "Pacific Time (PT)", value: "PST" }, { name: "Mountain Time (MT)", value: "MST" },
-                { name: "Central Time (CT)", value: "CST" }, { name: "Eastern Time (ET)", value: "EST" },
-                { name: "Greenwich Mean Time (GMT)", value: "GMT" }, { name: "Central European Time (CET)", value: "CET" },
-                { name: "Eastern European Time (EET)", value: "EET" }, { name: "India Standard Time (IST)", value: "IST" },
-                { name: "China Standard Time (CST)", value: "CST" }, { name: "Japan Standard Time (JST)", value: "JST" },
-                { name: "Australian Eastern Time (AET)", value: "AEST" },
-            ];
-
+            
+            const usStatesAndTerritories = ["Alabama", "Alaska", "American Samoa", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Guam", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Northern Mariana Islands", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "U.S. Virgin Islands", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"].sort();
+            const timezones = [{ name: "Samoa Standard Time (SST)", value: "SST" }, { name: "Hawaii Standard Time (HST)", value: "HST" }, { name: "Alaska Standard Time (AKST)", value: "AKST" }, { name: "Pacific Standard Time (PST)", value: "PST" }, { name: "Mountain Standard Time (MST)", value: "MST" }, { name: "Central Standard Time (CST)", value: "CST" }, { name: "Eastern Standard Time (EST)", value: "EST" }, { name: "Atlantic Standard Time (AST)", value: "AST" }, { name: "Chamorro Standard Time (ChST)", value: "ChST" }];
             const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
@@ -301,25 +310,31 @@
 
             function validateInputs() {
                 const isTimeValid = birthtimeInput.value || unknownTimeCheckbox.checked;
-                if (selectedSign && birthdateInput.value && isTimeValid && birthStateInput.value && birthTimezoneInput.value && currentTimezoneInput.value) {
-                    calculateBtn.disabled = false;
-                    errorMessage.textContent = '';
-                } else {
-                    calculateBtn.disabled = true;
+                let isValid = true;
+                if (!selectedSign || !birthdateInput.value || !isTimeValid || !birthStateInput.value || !birthTimezoneInput.value || !currentTimezoneInput.value) {
+                   isValid = false;
                 }
+                calculateBtn.disabled = !isValid;
+                if(isValid) errorMessage.textContent = '';
+                return isValid;
             }
             
             [birthtimeInput, birthStateInput, birthTimezoneInput, currentTimezoneInput].forEach(el => el.addEventListener('input', validateInputs));
             
             calculateBtn.addEventListener('click', () => {
-                if(calculateBtn.disabled) {
-                    errorMessage.textContent = 'Please complete all steps.';
-                    return;
+                if(validateInputs()) {
+                    calculateAndDisplayResults();
+                } else {
+                    if (!birthdateInput.value) errorMessage.textContent = 'Please enter your birthdate.';
+                    else if (!birthStateInput.value) errorMessage.textContent = 'Please select your state or territory of birth.';
+                    else if (!birthTimezoneInput.value) errorMessage.textContent = 'Please select your birth timezone.';
+                    else if (!currentTimezoneInput.value) errorMessage.textContent = 'Please select your current timezone.';
+                    else errorMessage.textContent = 'Please complete all fields.';
                 }
-                calculateAndDisplayResults();
             });
 
             // --- ASTROLOGICAL CALCULATION ENGINE ---
+
             function getPlanetaryPositions(date) {
                 const totalHours = (date.getTime() / (1000 * 60 * 60)); 
                 const totalDays = totalHours / 24;
@@ -339,56 +354,57 @@
                 if (Math.abs(diff - 60) < orb || Math.abs(diff - 300) < orb) return { type: "Sextile", points: 3 };
                 if (Math.abs(diff - 90) < orb || Math.abs(diff - 270) < orb) return { type: "Square", points: -4 };
                 if (Math.abs(diff - 180) < orb) return { type: "Opposition", points: -5 };
-                if (diff < orb || Math.abs(diff - 360) < orb) return { type: "Conjunction", points: 0 };
-                return null;
+                return null; 
             }
 
             function findAuspiciousDays(natalChart, startDate) {
-                const dailyScores = {};
+                const luckyDays = {};
                 let checkDate = new Date(startDate);
-                const natalPlanets = {
-                    'Sun': natalChart.Sun, 'Moon': natalChart.Moon, 'Mercury': natalChart.Mercury, 'Venus': natalChart.Venus, 
-                    'Mars': natalChart.Mars, 'Jupiter': natalChart.Jupiter, 'Saturn': natalChart.Saturn
-                };
 
-                for (let i = 0; i < 24 * 180; i++) {
-                    let hourlyScore = 0, primaryReason = '', highestImpact = 0, isDisqualified = false;
+                const natalPlanets = {'Sun': natalChart.Sun, 'Moon': natalChart.Moon, 'Mercury': natalChart.Mercury, 'Venus': natalChart.Venus, 'Jupiter': natalChart.Jupiter};
+                const MAJOR_TRANSITORS = ['Jupiter', 'Venus'];
+                const MINOR_TRANSITORS = ['Sun', 'Mercury', 'Moon'];
+                const LUCKY_NATAL_TARGETS = ['Sun', 'Moon', 'Venus', 'Jupiter'];
+
+                for (let i = 0; i < 24 * 180; i++) { 
+                    const dayKey = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
+                    if (!luckyDays[dayKey]) {
+                        luckyDays[dayKey] = { date: new Date(checkDate.getFullYear(), checkDate.getMonth(), checkDate.getDate()), majorTransits: new Set(), minorTransits: new Set(), isDisqualified: false, };
+                    }
+                    if (luckyDays[dayKey].isDisqualified) { checkDate.setHours(checkDate.getHours() + 1); continue; }
                     const transitingPlanets = getPlanetaryPositions(checkDate);
-
+                    const challengingPlanets = ['Mars', 'Saturn'];
+                    const personalPlanets = ['Sun', 'Moon', 'Venus', 'Mercury'];
+                    for (const tPlanetName of challengingPlanets) {
+                        for (const nPlanetName of personalPlanets) {
+                            if (natalChart[nPlanetName] === undefined) continue;
+                            const aspect = getAspect(transitingPlanets[tPlanetName], natalChart[nPlanetName]);
+                            if (aspect && aspect.points < 0) { luckyDays[dayKey].isDisqualified = true; break; }
+                        }
+                        if (luckyDays[dayKey].isDisqualified) break;
+                    }
+                    if (luckyDays[dayKey].isDisqualified) { checkDate.setHours(checkDate.getHours() + 1); continue; }
                     for (const [tPlanetName, tPos] of Object.entries(transitingPlanets)) {
                         for (const [nPlanetName, nPos] of Object.entries(natalPlanets)) {
-                            const aspect = getAspect(tPos, nPos);
-                            if (aspect) {
-                                const challengingPlanets = ['Mars', 'Saturn'], personalPlanets = ['Sun', 'Moon', 'Venus', 'Mercury'];
-                                if (aspect.points < 0 && challengingPlanets.includes(tPlanetName) && personalPlanets.includes(nPlanetName)) {
-                                    isDisqualified = true; break;
-                                }
-                                const planetWeight = { 'Jupiter': 10, 'Venus': 8, 'Sun': 6, 'Moon': 2, 'Mercury': 3, 'Mars': -7, 'Saturn': -9 };
-                                let impact = (aspect.type === 'Conjunction') ? planetWeight[tPlanetName] : aspect.points * (Math.abs(planetWeight[tPlanetName]) / 5);
-                                hourlyScore += impact;
-                                if (impact > highestImpact) {
-                                    highestImpact = impact;
-                                    primaryReason = `a ${aspect.type.toLowerCase()} from transiting ${tPlanetName} to your natal ${nPlanetName}`;
-                                }
-                            }
-                        }
-                        if (isDisqualified) break;
-                    }
-
-                    if (hourlyScore > 0 && !isDisqualified) {
-                        const dayKey = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
-                        if (!dailyScores[dayKey]) {
-                            dailyScores[dayKey] = { score: 0, reason: '', highestImpact: 0, date: new Date(checkDate.getFullYear(), checkDate.getMonth(), checkDate.getDate()) };
-                        }
-                        dailyScores[dayKey].score += hourlyScore;
-                        if (highestImpact > dailyScores[dayKey].highestImpact) {
-                            dailyScores[dayKey].highestImpact = highestImpact;
-                            dailyScores[dayKey].reason = primaryReason;
+                             const aspect = getAspect(tPos, nPos);
+                             if (aspect && aspect.points > 0) {
+                                const reason = `${tPlanetName} ${aspect.type} your natal ${nPlanetName}`;
+                                if(MAJOR_TRANSITORS.includes(tPlanetName) && LUCKY_NATAL_TARGETS.includes(nPlanetName)) { luckyDays[dayKey].majorTransits.add(reason); } 
+                                else if (MINOR_TRANSITORS.includes(tPlanetName)) { luckyDays[dayKey].minorTransits.add(reason); }
+                             }
                         }
                     }
                     checkDate.setHours(checkDate.getHours() + 1);
                 }
-                return Object.values(dailyScores).sort((a, b) => b.score - a.score);
+                const validLuckyDays = Object.values(luckyDays).filter(day => !day.isDisqualified && (day.majorTransits.size > 0 || day.minorTransits.size > 2));
+                return validLuckyDays.sort((a, b) => {
+                    if (b.majorTransits.size !== a.majorTransits.size) { return b.majorTransits.size - a.majorTransits.size; }
+                    const bHasJupiter = Array.from(b.majorTransits).some(t => t.startsWith('Jupiter'));
+                    const aHasJupiter = Array.from(a.majorTransits).some(t => t.startsWith('Jupiter'));
+                    if (bHasJupiter && !aHasJupiter) return -1;
+                    if (!bHasJupiter && aHasJupiter) return 1;
+                    return b.minorTransits.size - a.minorTransits.size;
+                });
             }
 
             function calculateAndDisplayResults() {
@@ -405,10 +421,11 @@
                     const allDays = findAuspiciousDays(currentNatalChart, new Date());
                     
                     resultsList.innerHTML = ''; 
+                    lotteryChoiceContainer.classList.add('hidden');
                     luckyNumbersContainer.classList.add('hidden');
 
                     if(allDays.length === 0) {
-                        resultsList.innerHTML = `<div class="text-center p-4 text-green-200">No highly auspicious moments found in the next 180 days.</div>`;
+                        resultsList.innerHTML = `<div class="text-center p-4 text-green-200">No qualifying lucky days found in the next 180 days.</div>`;
                     } else {
                         const daysByMonth = {};
                         allDays.forEach(day => {
@@ -437,33 +454,29 @@
                                 let content = '';
                                 if(isMostFavorable) content += `<span class="inline-block bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-2">Most Favorable Day</span>`;
                                 content += `<p class="font-bold text-lg ${isMostFavorable ? 'text-white' : 'text-green-200'}">${dateString}</p>`;
-                                content += `<p class="text-sm text-green-300 mt-1">Primary influence: ${day.reason || 'Multiple harmonious alignments'}.</p>`;
+                                if (day.majorTransits.size > 0) {
+                                    content += `<p class="text-sm text-green-300 mt-2 font-semibold">Major Influences:</p><ul class="list-disc list-inside text-sm text-green-300">`;
+                                    Array.from(day.majorTransits).forEach(transit => { content += `<li>${transit}</li>`; });
+                                    content += `</ul>`;
+                                }
+                                if (day.minorTransits.size > 0) {
+                                     content += `<p class="text-sm text-green-300 mt-2 font-semibold">Supporting Influences:</p><ul class="list-disc list-inside text-sm text-green-300">`;
+                                     Array.from(day.minorTransits).forEach(transit => { content += `<li>${transit}</li>`; });
+                                     content += `</ul>`;
+                                }
                                 item.innerHTML = content;
-
                                 item.addEventListener('click', () => {
                                     document.querySelectorAll('.day-panel').forEach(panel => panel.classList.remove('day-panel-selected'));
                                     item.classList.add('day-panel-selected');
-
-                                    const luckyNumbers = generateLuckyNumbers(currentNatalChart, day.date);
-                                    luckyNumbersDisplay.innerHTML = '';
-                                    luckyNumbers.forEach((num, index) => {
-                                        const numberEl = document.createElement('div');
-                                        const isPowerball = index === luckyNumbers.length - 1;
-                                        numberEl.className = `w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${isPowerball ? 'bg-emerald-500/70' : 'bg-green-500/50'}`;
-                                        numberEl.textContent = num;
-                                        luckyNumbersDisplay.appendChild(numberEl);
-                                    });
-
-                                    luckyNumbersTitle.textContent = `Your Lucky Numbers for ${dateString}:`;
-                                    luckyNumbersContainer.classList.remove('hidden');
-                                    luckyNumbersContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                    selectedDate = day.date;
+                                    luckyNumbersContainer.classList.add('hidden'); // Hide old numbers
+                                    lotteryChoiceContainer.classList.remove('hidden');
+                                    lotteryChoiceContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                                 });
-
                                 resultsList.appendChild(item);
                             });
                         });
                     }
-
                     resultContainer.classList.remove('hidden');
                     setTimeout(() => resultContainer.classList.remove('opacity-0', 'scale-95', '-translate-y-5'), 10);
                     resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -473,32 +486,83 @@
                 }, 100); 
             }
 
-            function generateLuckyNumbers(natalChart, drawDate) {
+            lotteryChoiceContainer.addEventListener('click', (e) => {
+                if(e.target.matches('[data-lotto-type]')) {
+                    const lotteryType = e.target.dataset.lottoType;
+                    const luckyNumbers = generateLuckyNumbers(currentNatalChart, selectedDate, lotteryType);
+                    displayLuckyNumbers(luckyNumbers, lotteryType);
+                }
+            });
+
+            function displayLuckyNumbers(numbers, type) {
+                luckyNumbersDisplay.innerHTML = '';
+                const mainNumbers = numbers.slice(0, numbers.length -1);
+                const specialNumber = numbers.length > 5 ? numbers[numbers.length - 1] : null;
+
+                const dateString = `${monthNames[selectedDate.getMonth()]} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
+                luckyNumbersTitle.textContent = `Your Lucky Numbers for ${dateString}:`;
+
+                let specialBallClass = 'bg-emerald-500/70'; // Default for state
+                if (type === 'powerball') specialBallClass = 'bg-red-600/70';
+                if (type === 'megamillions') specialBallClass = 'bg-purple-600/70';
+
+                numbers.forEach((num, index) => {
+                    const numberEl = document.createElement('div');
+                    const isSpecialBall = (type === 'powerball' || type === 'megamillions') && index === numbers.length - 1;
+                    
+                    numberEl.className = `w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${isSpecialBall ? specialBallClass : 'bg-green-500/50'}`;
+                    numberEl.textContent = num;
+                    luckyNumbersDisplay.appendChild(numberEl);
+                });
+                
+                luckyNumbersContainer.classList.remove('hidden');
+                luckyNumbersContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+
+            function generateLuckyNumbers(natalChart, drawDate, lotteryType) {
                 const transitingPlanets = getPlanetaryPositions(drawDate);
-                const mainNumbers = new Set();
                 const natalValues = Object.values(natalChart);
                 const transitingValues = Object.values(transitingPlanets);
+                const mainNumbers = new Set();
+                let mainPool, specialPool, mainCount, specialCount;
+
+                switch(lotteryType) {
+                    case 'powerball':
+                        mainPool = 69; specialPool = 26; mainCount = 5;
+                        break;
+                    case 'megamillions':
+                        mainPool = 70; specialPool = 25; mainCount = 5;
+                        break;
+                    case 'state':
+                    default:
+                        mainPool = 49; specialPool = 0; mainCount = 6;
+                        break;
+                }
 
                 for(let i = 0; i < natalValues.length; i++) {
-                    if(mainNumbers.size < 5) {
+                    if(mainNumbers.size < mainCount) {
                         const combination = natalValues[i] + transitingValues[(i + 3) % transitingValues.length];
-                        const newNum = Math.floor(((combination % 69) + 69) % 69) + 1;
+                        const newNum = Math.floor(((combination % mainPool) + mainPool) % mainPool) + 1;
                         if (!mainNumbers.has(newNum)) mainNumbers.add(newNum);
                     }
                 }
                 
                 let safetyCounter = 0;
-                while(mainNumbers.size < 5 && safetyCounter < 30) {
-                     const extraNum = Math.floor((((natalValues[safetyCounter % natalValues.length] + transitingValues[safetyCounter % transitingValues.length]) % 69) + 69) % 69) + 1;
+                while(mainNumbers.size < mainCount && safetyCounter < 50) {
+                     const extraNum = Math.floor((((natalValues[safetyCounter % natalValues.length] + transitingValues[safetyCounter % transitingValues.length] + safetyCounter) % mainPool) + mainPool) % mainPool) + 1;
                      if (!mainNumbers.has(extraNum)) mainNumbers.add(extraNum);
                      safetyCounter++;
                 }
                 
-                const powerballSeed = natalValues.reduce((s, d) => s + d, 0) + transitingValues.reduce((s, d) => s + d, 0);
-                const powerball = Math.floor(((powerballSeed % 26) + 26) % 26) + 1;
-                
                 const sortedNumbers = Array.from(mainNumbers).sort((a,b) => a-b);
-                sortedNumbers.push(powerball);
+
+                if (specialPool > 0) {
+                    const powerballSeed = natalValues.reduce((s, d) => s + d, 0) + transitingValues.reduce((s, d) => s + d, 0);
+                    const powerball = Math.floor(((powerballSeed % specialPool) + specialPool) % specialPool) + 1;
+                    sortedNumbers.push(powerball);
+                }
+                
                 return sortedNumbers;
             }
         });
