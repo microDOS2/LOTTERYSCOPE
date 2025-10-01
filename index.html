@@ -88,6 +88,24 @@
             transform: scale(1.05);
             filter: brightness(1.1);
         }
+        /* New styles for seamless video embed */
+        .video-cover {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.5rem; /* rounded-lg */
+        }
+        .video-cover iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120%; /* Scale up to crop edges */
+            height: 140%; /* Scale up to crop edges */
+            transform: translate(-50%, -50%);
+            pointer-events: none; /* Prevents interaction with the oversized iframe */
+        }
     </style>
 </head>
 <body class="celestial-gradient text-white min-h-screen flex items-center justify-center p-4">
@@ -96,7 +114,15 @@
             <h1 class="text-4xl md:text-5xl font-bold mb-2" style="color: rgb(211, 8, 49);">
                 Cosmic Lucky Lottery Guide
             </h1>
-            <p class="text-green-200 text-lg">Align your birth chart with the stars for ultimate luck!</p>
+            <p class="text-green-200 text-lg mb-4">Align your birth chart with the stars for ultimate luck!</p>
+            <div class="video-cover w-full max-w-md mx-auto shadow-lg">
+                <iframe 
+                    src="https://www.youtube.com/embed/XxLRodQinJw?autoplay=1&mute=1&loop=1&playlist=XxLRodQinJw&controls=0&modestbranding=1&showinfo=0&rel=0" 
+                    frameborder="0" 
+                    allow="autoplay; encrypted-media" 
+                    allowfullscreen>
+                </iframe>
+            </div>
         </div>
 
         <!-- Step 1: Zodiac Sign Selector -->
@@ -546,7 +572,7 @@
 
             function generateLuckyNumbers(natalChart, drawDate, lotteryType) {
                 const transitingPlanets = getPlanetaryPositions(drawDate);
-                const natalValues = Object.values(natalChart);
+                const natalValues = Object.values( natalChart );
                 const transitingValues = Object.values(transitingPlanets);
                 const mainNumbers = new Set();
                 let mainPool, specialPool, mainCount;
