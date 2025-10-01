@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Lucky Lottery Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .celestial-gradient {
+            background: linear-gradient(145deg, #012a20, #046c4e, #011a14); /* New dark green gradient */
+        }
+        .card-bg {
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sign-card {
+            transition: all 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .sign-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            border-color: #34d399; /* emerald-400 */
+        }
+        .sign-card.selected {
+            background-color: rgba(52, 211, 153, 0.2);
+            border-color: #34d399;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
+        }
+        #result-container {
+            transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
+        }
+        /* Custom styles for inputs */
+        input[type="date"], input[type="time"], select {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+        select option {
+            background: #046c4e;
+            color: white;
+        }
+        /* Custom scrollbar for results list */
+        #results-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #results-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        #results-list::-webkit-scrollbar-thumb {
+            background: rgba(52, 211, 153, 0.5);
+            border-radius: 10px;
+        }
+        #results-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(52, 211, 153, 0.8);
+        }
+        /* Style for the selected day panel */
+        .day-panel-selected {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
+        }
+        input[type="checkbox"] {
+            accent-color: #34d399;
+        }
+        .zodiac-svg {
+            width: 40px;
+            height: 40px;
+        }
+    </style>
+</head>
+<body class="celestial-gradient text-white min-h-screen flex items-center justify-center p-4">
+    <main class="w-full max-w-2xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2 text-[#D30831]">
+                Cosmic Lucky Lottery Guide
+            </h1>
+            <p class="text-green-200 text-lg">Align your birth chart with the stars for ultimate luck!</p>
+        </div>
+
+        <!-- Step 1: Zodiac Sign Selector -->
+        <h2 class="text-xl font-semibold text-green-300 mb-3 text-center">Step 1: Your Sun Sign (Auto-Calculated)</h2>
+        <div id="zodiac-selector" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 mb-8">
+            <!-- Zodiac signs will be injected here by JavaScript -->
+        </div>
+
+        <!-- Step 2: Birth Info -->
+        <div id="birth-info" class="card-bg p-6 rounded-2xl shadow-lg mb-8">
+             <h2 class="text-xl font-semibold text-green-300 mb-4 text-center">Step 2: Enter Your Birth Details</h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="birthdate" class="block text-sm font-medium text-green-200 mb-1">Birthdate</label>
+                    <input type="date" id="birthdate" name="birthdate" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div>
+                    <label for="birthtime" class="block text-sm font-medium text-green-200 mb-1">Time of Birth</label>
+                    <input type="time" id="birthtime" name="birthtime" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500 transition-opacity">
+                </div>
+             </div>
+             <div class="mt-4">
+                <label for="birth-state" class="block text-sm font-medium text-green-200 mb-1">State or Territory of Birth</label>
+                <select id="birth-state" name="birth-state" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+                    <!-- Options will be populated by JS -->
+                </select>
+            </div>
+             <div class="mt-4">
+                <label for="birth-timezone" class="block text-sm font-medium text-green-200 mb-1">Birth Timezone</label>
+                <select id="birth-timezone" name="birth-timezone" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+                    <!-- Options will be populated by JS -->
+                </select>
+             </div>
+             <div class="mt-4 flex items-center">
+                <input type="checkbox" id="unknown-time" name="unknown-time" class="h-4 w-4 rounded">
+                <label for="unknown-time" class="ml-2 block text-sm text-green-200">Time of birth is unknown</label>
+            </div>
+        </div>
+
+        <!-- Step 3: Current Location -->
+        <div id="current-location" class="card-bg p-6 rounded-2xl shadow-lg mb-8">
+             <h2 class="text-xl font-semibold text-green-300 mb-4 text-center">Step 3: Your Current Location</h2>
+             <div>
+                <label for="current-timezone" class="block text-sm font-medium text-green-200 mb-1">Current Timezone</label>
+                <select id="current-timezone" name="current-timezone" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+                    <!-- Options will be populated by JS -->
+                </select>
+             </div>
+        </div>
+        
+        <!-- Step 4: Calculate Button -->
+        <div class="text-center mb-8">
+            <button id="calculate-btn" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                Reveal My Lucky Times
+            </button>
+            <p id="error-message" class="text-red-400 mt-2 h-4"></p>
+        </div>
+
+
+        <!-- Result Container -->
+        <div id="result-container" class="card-bg p-6 rounded-2xl shadow-2xl opacity-0 transform scale-95 -translate-y-5 hidden">
+            <h2 class="text-2xl font-semibold text-center mb-4 text-green-300">Your Auspicious Days</h2>
+            <p class="text-center text-green-200 mb-6 -mt-2">Click a day below to reveal your lucky numbers for that day.</p>
+            
+            <div id="results-list" class="space-y-3 max-h-96 overflow-y-auto pr-2 mb-6">
+                <!-- Auspicious moments will be listed here -->
+            </div>
+            
+            <div id="lucky-numbers-container" class="my-6 text-center hidden border-t border-green-400/20 pt-6">
+                <p id="lucky-numbers-title" class="text-green-200 mb-2">Your Lucky Numbers for the Selected Date:</p>
+                <div id="lucky-numbers" class="flex justify-center items-center gap-3 flex-wrap">
+                    <!-- Lucky numbers will be injected here -->
+                </div>
+            </div>
+
+            <p class="text-sm text-green-300 italic text-center mt-6">"Fortune favors the astrologically aligned."</p>
+        </div>
+        
+        <footer class="text-center mt-8 text-xs text-green-400">
+            <p>Disclaimer: This app is for entertainment only and uses a simplified astrological model based on natal transit aspects. Please play responsibly.</p>
+        </footer>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const zodiacSelector = document.getElementById('zodiac-selector');
+            const birthdateInput = document.getElementById('birthdate');
+            const birthtimeInput = document.getElementById('birthtime');
+            const birthStateInput = document.getElementById('birth-state');
+            const birthTimezoneInput = document.getElementById('birth-timezone');
+            const unknownTimeCheckbox = document.getElementById('unknown-time');
+            const currentTimezoneInput = document.getElementById('current-timezone');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const errorMessage = document.getElementById('error-message');
+
+            const resultContainer = document.getElementById('result-container');
+            const resultsList = document.getElementById('results-list');
+            
+            const luckyNumbersContainer = document.getElementById('lucky-numbers-container');
+            const luckyNumbersDisplay = document.getElementById('lucky-numbers');
+            const luckyNumbersTitle = document.getElementById('lucky-numbers-title');
+
+            let selectedSign = null;
+            let currentNatalChart = null;
+            
+            const iconColor = "#F8D000"; // The user-specified yellow
+
+            const zodiacSigns = [
+                { name: 'Aries', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 75V50C25 25 75 25 75 50V75M50 100V40"/></svg>` },
+                { name: 'Taurus', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="60" r="25"/><path d="M35 35c10-20 30-20 40 0"/></svg>` },
+                { name: 'Gemini', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 25h50M25 75h50M40 25v50M60 25v50"/></svg>` },
+                { name: 'Cancer', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M30 35a20 20 0 1 0 40 0 20 20 0 1 0-40 0zM70 65a20 20 0 1 1-40 0 20 20 0 1 1 40 0z"/></svg>` },
+                { name: 'Leo', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><circle cx="40" cy="50" r="25"/><path d="M65 50c0 20 20 20 20-5V20"/></svg>` },
+                { name: 'Virgo', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 25v50M40 25v50M60 25v50l20-25c0-15-20-15-20 0z"/></svg>` },
+                { name: 'Libra', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M15 75h70M25 50a25 25 0 0 1 50 0"/></svg>` },
+                { name: 'Scorpio', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 25v50M40 25v50M60 25v25l25 25-10 10"/></svg>` },
+                { name: 'Sagittarius', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 80L80 20M50 20h30v30M20 50h30"/></svg>` },
+                { name: 'Capricorn', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 50v-25l30 25v25c0 15 25 15 25 0s-10-25-25-25"/></svg>` },
+                { name: 'Aquarius', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 35l15-15 15 15 15-15 15 15M20 65l15-15 15 15 15-15 15 15"/></svg>` },
+                { name: 'Pisces', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 20c-20 20 0 60 0 60M75 20c20 20 0 60 0 60M20 50h60"/></svg>` }
+            ];
+
+            const usStatesAndTerritories = ["Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "American Samoa", "Guam", "Northern Mariana Islands", "Puerto Rico", "U.S. Virgin Islands"];
+
+            const timezones = [
+                { name: "Hawaii Time (HT)", value: "HST" }, { name: "Alaska Time (AKT)", value: "AKST" },
+                { name: "Pacific Time (PT)", value: "PST" }, { name: "Mountain Time (MT)", value: "MST" },
+                { name: "Central Time (CT)", value: "CST" }, { name: "Eastern Time (ET)", value: "EST" },
+                { name: "Greenwich Mean Time (GMT)", value: "GMT" }, { name: "Central European Time (CET)", value: "CET" },
+                { name: "Eastern European Time (EET)", value: "EET" }, { name: "India Standard Time (IST)", value: "IST" },
+                { name: "China Standard Time (CST)", value: "CST" }, { name: "Japan Standard Time (JST)", value: "JST" },
+                { name: "Australian Eastern Time (AET)", value: "AEST" },
+            ];
+
+            const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            function populateSelect(selectElement, options, placeholder) {
+                selectElement.innerHTML = `<option value="" disabled selected>${placeholder}</option>`;
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = typeof opt === 'object' ? opt.value : opt;
+                    option.textContent = typeof opt === 'object' ? opt.name : opt;
+                    selectElement.appendChild(option);
+                });
+            }
+
+            populateSelect(birthTimezoneInput, timezones, "Select a timezone");
+            populateSelect(currentTimezoneInput, timezones, "Select a timezone");
+            populateSelect(birthStateInput, usStatesAndTerritories, "Select a State or Territory");
+
+            zodiacSigns.forEach((sign, index) => {
+                const card = document.createElement('div');
+                card.className = 'sign-card card-bg p-4 rounded-xl text-center opacity-50';
+                card.dataset.sign = sign.name;
+                card.dataset.index = index;
+                card.innerHTML = `${sign.svg}<span class="mt-2 text-sm font-semibold">${sign.name}</span>`;
+                zodiacSelector.appendChild(card);
+            });
+
+            function getZodiacSign(month, day) {
+                if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return { name: 'Aries', index: 0 };
+                if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return { name: 'Taurus', index: 1 };
+                if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return { name: 'Gemini', index: 2 };
+                if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return { name: 'Cancer', index: 3 };
+                if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return { name: 'Leo', index: 4 };
+                if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return { name: 'Virgo', index: 5 };
+                if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return { name: 'Libra', index: 6 };
+                if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return { name: 'Scorpio', index: 7 };
+                if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return { name: 'Sagittarius', index: 8 };
+                if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return { name: 'Capricorn', index: 9 };
+                if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return { name: 'Aquarius', index: 10 };
+                if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return { name: 'Pisces', index: 11 };
+                return null;
+            }
+
+            function autoSelectSign() {
+                if (!birthdateInput.value) return;
+                const [year, month, day] = birthdateInput.value.split('-').map(Number);
+                const signInfo = getZodiacSign(month, day);
+
+                if (signInfo) {
+                    selectedSign = signInfo.name;
+                    document.querySelectorAll('.sign-card').forEach(card => {
+                        card.classList.remove('selected', 'opacity-100');
+                        card.classList.add('opacity-50');
+                    });
+                    const selectedCard = document.querySelector(`.sign-card[data-index='${signInfo.index}']`);
+                    if(selectedCard) {
+                        selectedCard.classList.add('selected', 'opacity-100');
+                        selectedCard.classList.remove('opacity-50');
+                    }
+                } else {
+                    selectedSign = null;
+                }
+                validateInputs();
+            }
+
+            birthdateInput.addEventListener('input', autoSelectSign);
+
+            unknownTimeCheckbox.addEventListener('input', () => {
+                birthtimeInput.disabled = unknownTimeCheckbox.checked;
+                birthtimeInput.classList.toggle('opacity-50', unknownTimeCheckbox.checked);
+                if (unknownTimeCheckbox.checked) {
+                    birthtimeInput.value = '';
+                }
+                validateInputs();
+            });
+
+            function validateInputs() {
+                const isTimeValid = birthtimeInput.value || unknownTimeCheckbox.checked;
+                if (selectedSign && birthdateInput.value && isTimeValid && birthStateInput.value && birthTimezoneInput.value && currentTimezoneInput.value) {
+                    calculateBtn.disabled = false;
+                    errorMessage.textContent = '';
+                } else {
+                    calculateBtn.disabled = true;
+                }
+            }
+            
+            [birthtimeInput, birthStateInput, birthTimezoneInput, currentTimezoneInput].forEach(el => el.addEventListener('input', validateInputs));
+            
+            calculateBtn.addEventListener('click', () => {
+                if(calculateBtn.disabled) {
+                    errorMessage.textContent = 'Please complete all steps.';
+                    return;
+                }
+                calculateAndDisplayResults();
+            });
+
+            // --- ASTROLOGICAL CALCULATION ENGINE ---
+            function getPlanetaryPositions(date) {
+                const totalHours = (date.getTime() / (1000 * 60 * 60)); 
+                const totalDays = totalHours / 24;
+                const totalYears = totalDays / 365.25;
+                return {
+                    Sun: (totalDays % 365.25) / 365.25 * 360, Moon: (totalHours * (13.176 / 24)) % 360,
+                    Mercury: (totalDays % 88) / 88 * 360, Venus: (totalDays % 225) / 225 * 360,
+                    Mars: (totalDays % 687) / 687 * 360, Jupiter: (totalYears % 11.86) / 11.86 * 360,
+                    Saturn: (totalYears % 29.46) / 29.46 * 360,
+                };
+            }
+            
+            function getAspect(pos1, pos2) {
+                const diff = Math.abs(pos1 - pos2);
+                const orb = 8; 
+                if (Math.abs(diff - 120) < orb || Math.abs(diff - 240) < orb) return { type: "Trine", points: 5 };
+                if (Math.abs(diff - 60) < orb || Math.abs(diff - 300) < orb) return { type: "Sextile", points: 3 };
+                if (Math.abs(diff - 90) < orb || Math.abs(diff - 270) < orb) return { type: "Square", points: -4 };
+                if (Math.abs(diff - 180) < orb) return { type: "Opposition", points: -5 };
+                if (diff < orb || Math.abs(diff - 360) < orb) return { type: "Conjunction", points: 0 };
+                return null;
+            }
+
+            function findAuspiciousDays(natalChart, startDate) {
+                const dailyScores = {};
+                let checkDate = new Date(startDate);
+                const natalPlanets = {
+                    'Sun': natalChart.Sun, 'Moon': natalChart.Moon, 'Mercury': natalChart.Mercury, 'Venus': natalChart.Venus, 
+                    'Mars': natalChart.Mars, 'Jupiter': natalChart.Jupiter, 'Saturn': natalChart.Saturn
+                };
+
+                for (let i = 0; i < 24 * 180; i++) {
+                    let hourlyScore = 0, primaryReason = '', highestImpact = 0, isDisqualified = false;
+                    const transitingPlanets = getPlanetaryPositions(checkDate);
+
+                    for (const [tPlanetName, tPos] of Object.entries(transitingPlanets)) {
+                        for (const [nPlanetName, nPos] of Object.entries(natalPlanets)) {
+                            const aspect = getAspect(tPos, nPos);
+                            if (aspect) {
+                                const challengingPlanets = ['Mars', 'Saturn'], personalPlanets = ['Sun', 'Moon', 'Venus', 'Mercury'];
+                                if (aspect.points < 0 && challengingPlanets.includes(tPlanetName) && personalPlanets.includes(nPlanetName)) {
+                                    isDisqualified = true; break;
+                                }
+                                const planetWeight = { 'Jupiter': 10, 'Venus': 8, 'Sun': 6, 'Moon': 2, 'Mercury': 3, 'Mars': -7, 'Saturn': -9 };
+                                let impact = (aspect.type === 'Conjunction') ? planetWeight[tPlanetName] : aspect.points * (Math.abs(planetWeight[tPlanetName]) / 5);
+                                hourlyScore += impact;
+                                if (impact > highestImpact) {
+                                    highestImpact = impact;
+                                    primaryReason = `a ${aspect.type.toLowerCase()} from transiting ${tPlanetName} to your natal ${nPlanetName}`;
+                                }
+                            }
+                        }
+                        if (isDisqualified) break;
+                    }
+
+                    if (hourlyScore > 0 && !isDisqualified) {
+                        const dayKey = `${checkDate.getFullYear()}-${checkDate.getMonth()}-${checkDate.getDate()}`;
+                        if (!dailyScores[dayKey]) {
+                            dailyScores[dayKey] = { score: 0, reason: '', highestImpact: 0, date: new Date(checkDate.getFullYear(), checkDate.getMonth(), checkDate.getDate()) };
+                        }
+                        dailyScores[dayKey].score += hourlyScore;
+                        if (highestImpact > dailyScores[dayKey].highestImpact) {
+                            dailyScores[dayKey].highestImpact = highestImpact;
+                            dailyScores[dayKey].reason = primaryReason;
+                        }
+                    }
+                    checkDate.setHours(checkDate.getHours() + 1);
+                }
+                return Object.values(dailyScores).sort((a, b) => b.score - a.score);
+            }
+
+            function calculateAndDisplayResults() {
+                calculateBtn.textContent = 'Calculating Cosmos...';
+                calculateBtn.disabled = true;
+
+                setTimeout(() => {
+                    const birthTimeValue = unknownTimeCheckbox.checked ? '12:00' : birthtimeInput.value;
+                    const [year, month, day] = birthdateInput.value.split('-');
+                    const [hour, minute] = birthTimeValue.split(':');
+                    const birthDate = new Date(year, month - 1, day, hour, minute);
+                    
+                    currentNatalChart = getPlanetaryPositions(birthDate);
+                    const allDays = findAuspiciousDays(currentNatalChart, new Date());
+                    
+                    resultsList.innerHTML = ''; 
+                    luckyNumbersContainer.classList.add('hidden');
+
+                    if(allDays.length === 0) {
+                        resultsList.innerHTML = `<div class="text-center p-4 text-green-200">No highly auspicious moments found in the next 180 days.</div>`;
+                    } else {
+                        const daysByMonth = {};
+                        allDays.forEach(day => {
+                            const key = `${day.date.getFullYear()}-${day.date.getMonth()}`;
+                            if (!daysByMonth[key]) daysByMonth[key] = [];
+                            if (daysByMonth[key].length < 3) daysByMonth[key].push(day);
+                        });
+
+                        const sortedMonths = Object.keys(daysByMonth).sort((a,b) => new Date(a.split('-')[0], a.split('-')[1]) - new Date(b.split('-')[0], b.split('-')[1]));
+                        const overallBestDay = allDays[0];
+
+                        sortedMonths.forEach(monthKey => {
+                            const [year, month] = monthKey.split('-').map(Number);
+                            const header = document.createElement('h3');
+                            header.className = 'text-xl font-bold text-green-300 pt-4 first:pt-0';
+                            header.textContent = `${monthNames[month]} ${year}`;
+                            resultsList.appendChild(header);
+
+                            daysByMonth[monthKey].forEach(day => {
+                                const item = document.createElement('div');
+                                const isMostFavorable = day.date.getTime() === overallBestDay.date.getTime();
+                                const dateString = `${daysOfWeek[day.date.getDay()]}, ${monthNames[day.date.getMonth()]} ${day.date.getDate()}`;
+                                
+                                item.className = `day-panel p-4 rounded-lg border transition-colors mt-2 cursor-pointer ${isMostFavorable ? 'bg-green-600/20 border-green-500' : 'bg-white/5 border-transparent hover:border-green-600/50'}`;
+                                
+                                let content = '';
+                                if(isMostFavorable) content += `<span class="inline-block bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-2">Most Favorable Day</span>`;
+                                content += `<p class="font-bold text-lg ${isMostFavorable ? 'text-white' : 'text-green-200'}">${dateString}</p>`;
+                                content += `<p class="text-sm text-green-300 mt-1">Primary influence: ${day.reason || 'Multiple harmonious alignments'}.</p>`;
+                                item.innerHTML = content;
+
+                                item.addEventListener('click', () => {
+                                    document.querySelectorAll('.day-panel').forEach(panel => panel.classList.remove('day-panel-selected'));
+                                    item.classList.add('day-panel-selected');
+
+                                    const luckyNumbers = generateLuckyNumbers(currentNatalChart, day.date);
+                                    luckyNumbersDisplay.innerHTML = '';
+                                    luckyNumbers.forEach((num, index) => {
+                                        const numberEl = document.createElement('div');
+                                        const isPowerball = index === luckyNumbers.length - 1;
+                                        numberEl.className = `w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${isPowerball ? 'bg-emerald-500/70' : 'bg-green-500/50'}`;
+                                        numberEl.textContent = num;
+                                        luckyNumbersDisplay.appendChild(numberEl);
+                                    });
+
+                                    luckyNumbersTitle.textContent = `Your Lucky Numbers for ${dateString}:`;
+                                    luckyNumbersContainer.classList.remove('hidden');
+                                    luckyNumbersContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                });
+
+                                resultsList.appendChild(item);
+                            });
+                        });
+                    }
+
+                    resultContainer.classList.remove('hidden');
+                    setTimeout(() => resultContainer.classList.remove('opacity-0', 'scale-95', '-translate-y-5'), 10);
+                    resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    calculateBtn.textContent = 'Reveal My Lucky Times';
+                    validateInputs();
+                }, 100); 
+            }
+
+            function generateLuckyNumbers(natalChart, drawDate) {
+                const transitingPlanets = getPlanetaryPositions(drawDate);
+                const mainNumbers = new Set();
+                const natalValues = Object.values(natalChart);
+                const transitingValues = Object.values(transitingPlanets);
+
+                for(let i = 0; i < natalValues.length; i++) {
+                    if(mainNumbers.size < 5) {
+                        const combination = natalValues[i] + transitingValues[(i + 3) % transitingValues.length];
+                        const newNum = Math.floor(((combination % 69) + 69) % 69) + 1;
+                        if (!mainNumbers.has(newNum)) mainNumbers.add(newNum);
+                    }
+                }
+                
+                let safetyCounter = 0;
+                while(mainNumbers.size < 5 && safetyCounter < 30) {
+                     const extraNum = Math.floor((((natalValues[safetyCounter % natalValues.length] + transitingValues[safetyCounter % transitingValues.length]) % 69) + 69) % 69) + 1;
+                     if (!mainNumbers.has(extraNum)) mainNumbers.add(extraNum);
+                     safetyCounter++;
+                }
+                
+                const powerballSeed = natalValues.reduce((s, d) => s + d, 0) + transitingValues.reduce((s, d) => s + d, 0);
+                const powerball = Math.floor(((powerballSeed % 26) + 26) % 26) + 1;
+                
+                const sortedNumbers = Array.from(mainNumbers).sort((a,b) => a-b);
+                sortedNumbers.push(powerball);
+                return sortedNumbers;
+            }
+        });
+    </script>
+</body>
+</html>
+
