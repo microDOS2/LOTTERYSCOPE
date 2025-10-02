@@ -13,7 +13,7 @@
             font-family: 'Poppins', sans-serif;
         }
         .celestial-gradient {
-            background: linear-gradient(145deg, #012a20, #046c4e, #011a14); /* New dark green gradient */
+            background: linear-gradient(145deg, #012a20, #046c4e, #011a14);
         }
         .card-bg {
             background-color: rgba(255, 255, 255, 0.05);
@@ -29,7 +29,7 @@
         }
         .sign-card:hover {
             transform: translateY(-5px) scale(1.05);
-            border-color: #34d399; /* emerald-400 */
+            border-color: #34d399;
         }
         .sign-card.selected {
             background-color: rgba(52, 211, 153, 0.2);
@@ -37,10 +37,24 @@
             transform: translateY(-5px) scale(1.05);
             box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
         }
+        /* New transition for hidden sections */
+        .form-section {
+            transition: opacity 0.5s ease-in-out, max-height 0.5s ease-in-out, transform 0.5s ease-in-out, margin-top 0.5s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            transform: translateY(-1rem);
+            overflow: hidden;
+            margin-top: 0;
+        }
+        .form-section.visible {
+            max-height: 1000px; /* Large enough for content */
+            opacity: 1;
+            transform: translateY(0);
+            margin-top: 2rem; /* mb-8 */
+        }
         #result-container {
             transition: opacity 0.7s ease-in-out, transform 0.7s ease-in-out;
         }
-        /* Custom styles for inputs */
         input[type="date"], input[type="time"], select {
             background-color: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -54,57 +68,34 @@
             background: #046c4e;
             color: white;
         }
-        /* Custom scrollbar for results list */
-        #results-list::-webkit-scrollbar {
-            width: 8px;
-        }
-        #results-list::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-        #results-list::-webkit-scrollbar-thumb {
-            background: rgba(52, 211, 153, 0.5);
-            border-radius: 10px;
-        }
-        #results-list::-webkit-scrollbar-thumb:hover {
-            background: rgba(52, 211, 153, 0.8);
-        }
-        /* Style for the selected day panel */
+        #results-list::-webkit-scrollbar { width: 8px; }
+        #results-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        #results-list::-webkit-scrollbar-thumb { background: rgba(52, 211, 153, 0.5); border-radius: 10px; }
+        #results-list::-webkit-scrollbar-thumb:hover { background: rgba(52, 211, 153, 0.8); }
         .day-panel-selected {
             border-color: #34d399 !important;
             box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
         }
-        input[type="checkbox"] {
-            accent-color: #34d399;
-        }
-        .zodiac-svg {
-            width: 40px;
-            height: 40px;
-        }
-        .lottery-btn {
-            transition: all 0.2s ease-in-out;
-        }
-        .lottery-btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-        }
-        /* New styles for seamless video embed */
+        input[type="checkbox"] { accent-color: #34d399; }
+        .zodiac-svg { width: 40px; height: 40px; }
+        .lottery-btn { transition: all 0.2s ease-in-out; }
+        .lottery-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
         .video-cover {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            padding-bottom: 56.25%;
             height: 0;
             overflow: hidden;
-            border-radius: 0.5rem; /* rounded-lg */
+            border-radius: 0.5rem;
         }
         .video-cover iframe {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 120%; /* Scale up to crop edges */
-            height: 140%; /* Scale up to crop edges */
+            width: 120%;
+            height: 140%;
             transform: translate(-50%, -50%);
-            pointer-events: none; /* Prevents interaction with the oversized iframe */
+            pointer-events: none;
         }
     </style>
 </head>
@@ -126,72 +117,68 @@
         </div>
 
         <!-- Step 1: Zodiac Sign Selector -->
-        <h2 class="text-xl font-semibold text-green-300 mb-3 text-center">Step 1: Your Sun Sign (Auto-Calculated)</h2>
+        <h2 class="text-xl font-semibold text-green-300 mb-3 text-center">Step 1: Choose Your Sun Sign</h2>
         <div id="zodiac-selector" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 mb-8">
-            <!-- Zodiac signs will be injected here by JavaScript -->
+            <!-- Zodiac sign buttons will be injected here by JavaScript -->
         </div>
 
-        <!-- Step 2: Birth Info -->
-        <div id="birth-info" class="card-bg p-6 rounded-2xl shadow-lg mb-8">
-             <h2 class="text-xl font-semibold text-green-300 mb-4 text-center">Step 2: Enter Your Birth Details</h2>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="birthdate" class="block text-sm font-medium text-green-200 mb-1">Birthdate</label>
-                    <input type="date" id="birthdate" name="birthdate" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+        <div id="form-container">
+            <!-- Step 2: Birth Info -->
+            <div id="birth-info" class="form-section card-bg p-6 rounded-2xl shadow-lg">
+                 <h2 class="text-xl font-semibold text-green-300 mb-4 text-center">Step 2: Enter Your Birth Details</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="birthdate" class="block text-sm font-medium text-green-200 mb-1">Birthdate</label>
+                        <input type="date" id="birthdate" name="birthdate" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+                        <p id="date-error" class="text-red-400 text-xs mt-1 h-3"></p>
+                    </div>
+                    <div>
+                        <label for="birthtime" class="block text-sm font-medium text-green-200 mb-1">Time of Birth</label>
+                        <input type="time" id="birthtime" name="birthtime" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500 transition-opacity">
+                    </div>
+                 </div>
+                 <div class="mt-4">
+                    <label for="birth-state" class="block text-sm font-medium text-green-200 mb-1">Place of Birth</label>
+                    <select id="birth-state" name="birth-state" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </select>
                 </div>
-                <div>
-                    <label for="birthtime" class="block text-sm font-medium text-green-200 mb-1">Time of Birth</label>
-                    <input type="time" id="birthtime" name="birthtime" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500 transition-opacity">
+                 <div class="mt-4">
+                    <label for="birth-timezone" class="block text-sm font-medium text-green-200 mb-1">Birth Timezone</label>
+                    <select id="birth-timezone" name="birth-timezone" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </select>
+                 </div>
+                 <div class="mt-4 flex items-center">
+                    <input type="checkbox" id="unknown-time" name="unknown-time" class="h-4 w-4 rounded">
+                    <label for="unknown-time" class="ml-2 block text-sm text-green-200">Time of birth is unknown</label>
                 </div>
-             </div>
-             <div class="mt-4">
-                <label for="birth-state" class="block text-sm font-medium text-green-200 mb-1">Place of Birth</label>
-                <select id="birth-state" name="birth-state" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
-                    <!-- Options will be populated by JS -->
-                </select>
             </div>
-             <div class="mt-4">
-                <label for="birth-timezone" class="block text-sm font-medium text-green-200 mb-1">Birth Timezone</label>
-                <select id="birth-timezone" name="birth-timezone" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
-                    <!-- Options will be populated by JS -->
-                </select>
-             </div>
-             <div class="mt-4 flex items-center">
-                <input type="checkbox" id="unknown-time" name="unknown-time" class="h-4 w-4 rounded">
-                <label for="unknown-time" class="ml-2 block text-sm text-green-200">Time of birth is unknown</label>
+
+            <!-- Step 3: Current Location -->
+            <div id="current-location" class="form-section card-bg p-6 rounded-2xl shadow-lg">
+                 <h2 class="text-xl font-semibold text-green-300 mb-4 text-center">Step 3: Your Current Location</h2>
+                 <div>
+                    <label for="current-timezone" class="block text-sm font-medium text-green-200 mb-1">Current Timezone</label>
+                    <select id="current-timezone" name="current-timezone" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
+                    </select>
+                 </div>
+            </div>
+            
+            <!-- Step 4: Calculate Button -->
+            <div id="calculate-section" class="form-section text-center">
+                <button id="calculate-btn" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Reveal My Lucky Times
+                </button>
+                <p id="error-message" class="text-red-400 mt-2 h-4"></p>
             </div>
         </div>
-
-        <!-- Step 3: Current Location -->
-        <div id="current-location" class="card-bg p-6 rounded-2xl shadow-lg mb-8">
-             <h2 class="text-xl font-semibold text-green-300 mb-4 text-center">Step 3: Your Current Location</h2>
-             <div>
-                <label for="current-timezone" class="block text-sm font-medium text-green-200 mb-1">Current Timezone</label>
-                <select id="current-timezone" name="current-timezone" class="w-full p-2 rounded-md focus:ring-green-500 focus:border-green-500">
-                    <!-- Options will be populated by JS -->
-                </select>
-             </div>
-        </div>
-        
-        <!-- Step 4: Calculate Button -->
-        <div class="text-center mb-8">
-            <button id="calculate-btn" class="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-transform duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                Reveal My Lucky Times
-            </button>
-            <p id="error-message" class="text-red-400 mt-2 h-4"></p>
-        </div>
-
 
         <!-- Result Container -->
         <div id="result-container" class="card-bg p-6 rounded-2xl shadow-2xl opacity-0 transform scale-95 -translate-y-5 hidden">
             <h2 class="text-2xl font-semibold text-center mb-4 text-green-300">Your Auspicious Days</h2>
             <p class="text-center text-green-200 mb-6 -mt-2">Click a day below to choose your lottery game.</p>
             
-            <div id="results-list" class="space-y-3 max-h-96 overflow-y-auto pr-2 mb-6">
-                <!-- Auspicious moments will be listed here -->
-            </div>
+            <div id="results-list" class="space-y-3 max-h-96 overflow-y-auto pr-2 mb-6"></div>
             
-            <!-- NEW: Lottery Choice Container -->
             <div id="lottery-choice-container" class="my-6 text-center hidden border-t border-green-400/20 pt-6">
                 <p class="text-green-200 mb-4 font-semibold">Choose your game to reveal numbers for the selected day:</p>
                 <div class="flex justify-center items-center gap-3 flex-wrap">
@@ -203,9 +190,7 @@
 
             <div id="lucky-numbers-container" class="my-6 text-center hidden">
                 <p id="lucky-numbers-title" class="text-green-200 mb-2">Your Lucky Numbers:</p>
-                <div id="lucky-numbers" class="flex justify-center items-center gap-3 flex-wrap">
-                    <!-- Lucky numbers will be injected here -->
-                </div>
+                <div id="lucky-numbers" class="flex justify-center items-center gap-3 flex-wrap"></div>
             </div>
 
             <p class="text-sm text-green-300 italic text-center mt-6">"Fortune favors the astrologically aligned."</p>
@@ -219,7 +204,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const zodiacSelector = document.getElementById('zodiac-selector');
+            const birthInfoSection = document.getElementById('birth-info');
+            const currentLocationSection = document.getElementById('current-location');
+            const calculateSection = document.getElementById('calculate-section');
+
             const birthdateInput = document.getElementById('birthdate');
+            const dateError = document.getElementById('date-error');
             const birthtimeInput = document.getElementById('birthtime');
             const birthStateInput = document.getElementById('birth-state');
             const birthTimezoneInput = document.getElementById('birth-timezone');
@@ -243,46 +233,22 @@
             const iconColor = "#F8D000";
 
             const zodiacSigns = [
-                { name: 'Aries', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 75V50C25 25 75 25 75 50V75M50 100V40"/></svg>` },
-                { name: 'Taurus', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="60" r="25"/><path d="M35 35c10-20 30-20 40 0"/></svg>` },
-                { name: 'Gemini', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 25h50M25 75h50M40 25v50M60 25v50"/></svg>` },
-                { name: 'Cancer', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M30 35a20 20 0 1 0 40 0 20 20 0 1 0-40 0zM70 65a20 20 0 1 1-40 0 20 20 0 1 1 40 0z"/></svg>` },
-                { name: 'Leo', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><circle cx="40" cy="50" r="25"/><path d="M65 50c0 20 20 20 20-5V20"/></svg>` },
-                { name: 'Virgo', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 25v50M40 25v50M60 25v50l20-25c0-15-20-15-20 0z"/></svg>` },
-                { name: 'Libra', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M15 75h70M25 50a25 25 0 0 1 50 0"/></svg>` },
-                { name: 'Scorpio', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 25v50M40 25v50M60 25v25l25 25-10 10"/></svg>` },
-                { name: 'Sagittarius', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 80L80 20M50 20h30v30M20 50h30"/></svg>` },
-                { name: 'Capricorn', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 50v-25l30 25v25c0 15 25 15 25 0s-10-25-25-25"/></svg>` },
-                { name: 'Aquarius', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 35l15-15 15 15 15-15 15 15M20 65l15-15 15 15 15-15 15 15"/></svg>` },
-                { name: 'Pisces', svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 20c-20 20 0 60 0 60M75 20c20 20 0 60 0 60M20 50h60"/></svg>` }
+                { name: 'Aries', dateRange: "Mar 21 - Apr 19", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 75V50C25 25 75 25 75 50V75M50 100V40"/></svg>` },
+                { name: 'Taurus', dateRange: "Apr 20 - May 20", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="60" r="25"/><path d="M35 35c10-20 30-20 40 0"/></svg>` },
+                { name: 'Gemini', dateRange: "May 21 - Jun 20", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 25h50M25 75h50M40 25v50M60 25v50"/></svg>` },
+                { name: 'Cancer', dateRange: "Jun 21 - Jul 22", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M30 35a20 20 0 1 0 40 0 20 20 0 1 0-40 0zM70 65a20 20 0 1 1-40 0 20 20 0 1 1 40 0z"/></svg>` },
+                { name: 'Leo', dateRange: "Jul 23 - Aug 22", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><circle cx="40" cy="50" r="25"/><path d="M65 50c0 20 20 20 20-5V20"/></svg>` },
+                { name: 'Virgo', dateRange: "Aug 23 - Sep 22", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 25v50M40 25v50M60 25v50l20-25c0-15-20-15-20 0z"/></svg>` },
+                { name: 'Libra', dateRange: "Sep 23 - Oct 22", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M15 75h70M25 50a25 25 0 0 1 50 0"/></svg>` },
+                { name: 'Scorpio', dateRange: "Oct 23 - Nov 21", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 25v50M40 25v50M60 25v25l25 25-10 10"/></svg>` },
+                { name: 'Sagittarius', dateRange: "Nov 22 - Dec 21", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 80L80 20M50 20h30v30M20 50h30"/></svg>` },
+                { name: 'Capricorn', dateRange: "Dec 22 - Jan 19", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 50v-25l30 25v25c0 15 25 15 25 0s-10-25-25-25"/></svg>` },
+                { name: 'Aquarius', dateRange: "Jan 20 - Feb 18", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M20 35l15-15 15 15 15-15 15 15M20 65l15-15 15 15 15-15 15 15"/></svg>` },
+                { name: 'Pisces', dateRange: "Feb 19 - Mar 20", svg: `<svg class="zodiac-svg" viewBox="0 0 100 100" fill="none" stroke="${iconColor}" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M25 20c-20 20 0 60 0 60M75 20c20 20 0 60 0 60M20 50h60"/></svg>` }
             ];
             
-            const placesOfBirth = [
-                // US States & Territories
-                "Alabama", "Alaska", "American Samoa", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", 
-                "Florida", "Georgia", "Guam", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", 
-                "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", 
-                "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", 
-                "Northern Mariana Islands", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", 
-                "South Carolina", "South Dakota", "Tennessee", "Texas", "U.S. Virgin Islands", "Utah", "Vermont", "Virginia", 
-                "Washington", "West Virginia", "Wisconsin", "Wyoming",
-                // UK Countries
-                "England", "Northern Ireland", "Scotland", "Wales"
-            ].sort();
-
-            const timezones = [
-                { name: "Samoa Standard Time (SST)", value: "SST" },      // American Samoa
-                { name: "Hawaii Standard Time (HST)", value: "HST" },
-                { name: "Alaska Standard Time (AKST)", value: "AKST" },
-                { name: "Pacific Standard Time (PST)", value: "PST" },
-                { name: "Mountain Standard Time (MST)", value: "MST" },
-                { name: "Central Standard Time (CST)", value: "CST" },
-                { name: "Eastern Standard Time (EST)", value: "EST" },
-                { name: "Atlantic Standard Time (AST)", value: "AST" },  // Puerto Rico, US Virgin Islands
-                { name: "Chamorro Standard Time (ChST)", value: "ChST" },  // Guam, Northern Mariana Islands
-                { name: "UK Time (GMT/BST)", value: "GMT" } // UK Timezone
-            ];
-
+            const placesOfBirth = ["Alabama", "Alaska", "American Samoa", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "England", "Florida", "Georgia", "Guam", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Northern Ireland", "Northern Mariana Islands", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Puerto Rico", "Rhode Island", "Scotland", "South Carolina", "South Dakota", "Tennessee", "Texas", "U.S. Virgin Islands", "Utah", "Vermont", "Virginia", "Wales", "Washington", "West Virginia", "Wisconsin", "Wyoming"].sort();
+            const timezones = [{ name: "Samoa Standard Time (SST)", value: "SST" }, { name: "Hawaii Standard Time (HST)", value: "HST" }, { name: "Alaska Standard Time (AKST)", value: "AKST" }, { name: "Pacific Standard Time (PST)", value: "PST" }, { name: "Mountain Standard Time (MST)", value: "MST" }, { name: "Central Standard Time (CST)", value: "CST" }, { name: "Eastern Standard Time (EST)", value: "EST" }, { name: "Atlantic Standard Time (AST)", value: "AST" }, { name: "Chamorro Standard Time (ChST)", value: "ChST" }, { name: "UK Time (GMT/BST)", value: "GMT" }];
             const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             
@@ -300,86 +266,96 @@
             populateSelect(currentTimezoneInput, timezones, "Select a timezone");
             populateSelect(birthStateInput, placesOfBirth, "Select a Place of Birth");
 
-            zodiacSigns.forEach((sign, index) => {
-                const card = document.createElement('div');
-                card.className = 'sign-card card-bg p-4 rounded-xl text-center opacity-50';
-                card.dataset.sign = sign.name;
-                card.dataset.index = index;
-                card.innerHTML = `${sign.svg}<span class="mt-2 text-sm font-semibold">${sign.name}</span>`;
-                zodiacSelector.appendChild(card);
+            zodiacSigns.forEach((sign) => {
+                const button = document.createElement('button');
+                button.className = 'sign-card card-bg p-4 rounded-xl text-center';
+                button.dataset.sign = sign.name;
+                button.innerHTML = `${sign.svg}<span class="mt-2 text-sm font-semibold">${sign.name}</span>`;
+                button.addEventListener('click', () => handleSignSelection(button, sign));
+                zodiacSelector.appendChild(button);
             });
 
-            function getZodiacSign(month, day) {
-                if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) return { name: 'Aries', index: 0 };
-                if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) return { name: 'Taurus', index: 1 };
-                if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) return { name: 'Gemini', index: 2 };
-                if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) return { name: 'Cancer', index: 3 };
-                if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) return { name: 'Leo', index: 4 };
-                if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) return { name: 'Virgo', index: 5 };
-                if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) return { name: 'Libra', index: 6 };
-                if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) return { name: 'Scorpio', index: 7 };
-                if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return { name: 'Sagittarius', index: 8 };
-                if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return { name: 'Capricorn', index: 9 };
-                if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return { name: 'Aquarius', index: 10 };
-                if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return { name: 'Pisces', index: 11 };
-                return null;
+            function handleSignSelection(button, sign) {
+                document.querySelectorAll('.sign-card').forEach(card => card.classList.remove('selected'));
+                button.classList.add('selected');
+                selectedSign = sign;
+                
+                // Reveal form sections
+                [birthInfoSection, currentLocationSection, calculateSection].forEach(section => {
+                    section.classList.add('visible');
+                });
+
+                validateDate();
             }
 
-            function autoSelectSign() {
-                if (!birthdateInput.value) return;
-                const [year, month, day] = birthdateInput.value.split('-').map(Number);
-                const signInfo = getZodiacSign(month, day);
-
-                if (signInfo) {
-                    selectedSign = signInfo.name;
-                    document.querySelectorAll('.sign-card').forEach(card => {
-                        card.classList.remove('selected', 'opacity-100');
-                        card.classList.add('opacity-50');
-                    });
-                    const selectedCard = document.querySelector(`.sign-card[data-index='${signInfo.index}']`);
-                    if(selectedCard) {
-                        selectedCard.classList.add('selected', 'opacity-100');
-                        selectedCard.classList.remove('opacity-50');
-                    }
-                } else {
-                    selectedSign = null;
+            function isDateInSignRange(date, sign) {
+                if (!date || !sign) return false;
+                const m = date.getMonth() + 1;
+                const d = date.getDate();
+                
+                // Special handling for Capricorn which spans across the year-end
+                if (sign.name === 'Capricorn') {
+                    return (m === 12 && d >= 22) || (m === 1 && d <= 19);
                 }
-                validateInputs();
+
+                // General case for other signs
+                const [startMonthStr, startDayStr] = sign.dateRange.split(' - ')[0].split(' ');
+                const [endMonthStr, endDayStr] = sign.dateRange.split(' - ')[1].split(' ');
+                
+                const startMonth = monthNames.findIndex(mn => mn.startsWith(startMonthStr)) + 1;
+                const endMonth = monthNames.findIndex(mn => mn.startsWith(endMonthStr)) + 1;
+                
+                const startDate = new Date(2000, startMonth - 1, parseInt(startDayStr));
+                const endDate = new Date(2000, endMonth - 1, parseInt(endDayStr));
+                const checkDate = new Date(2000, m - 1, d);
+
+                return checkDate >= startDate && checkDate <= endDate;
             }
 
-            birthdateInput.addEventListener('input', autoSelectSign);
+            function validateDate() {
+                if (!birthdateInput.value || !selectedSign) {
+                    dateError.textContent = '';
+                    return false;
+                }
+                const [year, month, day] = birthdateInput.value.split('-').map(Number);
+                const date = new Date(year, month - 1, day);
+
+                if (!isDateInSignRange(date, selectedSign)) {
+                    dateError.textContent = `Please select a date for ${selectedSign.name} (${selectedSign.dateRange}).`;
+                    return false;
+                }
+                dateError.textContent = '';
+                return true;
+            }
+            
+            birthdateInput.addEventListener('input', () => {
+                validateDate();
+                validateAllInputs();
+            });
 
             unknownTimeCheckbox.addEventListener('input', () => {
                 birthtimeInput.disabled = unknownTimeCheckbox.checked;
                 birthtimeInput.classList.toggle('opacity-50', unknownTimeCheckbox.checked);
-                if (unknownTimeCheckbox.checked) {
-                    birthtimeInput.value = '';
-                }
-                validateInputs();
+                if (unknownTimeCheckbox.checked) birthtimeInput.value = '';
+                validateAllInputs();
             });
 
-            function validateInputs() {
+            function validateAllInputs() {
                 const isTimeValid = birthtimeInput.value || unknownTimeCheckbox.checked;
-                let isValid = true;
-                if (!selectedSign || !birthdateInput.value || !isTimeValid || !birthStateInput.value || !birthTimezoneInput.value || !currentTimezoneInput.value) {
-                   isValid = false;
-                }
+                const isDateValid = validateDate();
+                let isValid = selectedSign && birthdateInput.value && isDateValid && isTimeValid && birthStateInput.value && birthTimezoneInput.value && currentTimezoneInput.value;
                 calculateBtn.disabled = !isValid;
                 if(isValid) errorMessage.textContent = '';
                 return isValid;
             }
             
-            [birthtimeInput, birthStateInput, birthTimezoneInput, currentTimezoneInput].forEach(el => el.addEventListener('input', validateInputs));
+            [birthtimeInput, birthStateInput, birthTimezoneInput, currentTimezoneInput].forEach(el => el.addEventListener('input', validateAllInputs));
             
             calculateBtn.addEventListener('click', () => {
-                if(validateInputs()) {
+                if(validateAllInputs()) {
                     calculateAndDisplayResults();
                 } else {
-                    if (!birthdateInput.value) errorMessage.textContent = 'Please enter your birthdate.';
-                    else if (!birthStateInput.value) errorMessage.textContent = 'Please select your place of birth.';
-                    else if (!birthTimezoneInput.value) errorMessage.textContent = 'Please select your birth timezone.';
-                    else if (!currentTimezoneInput.value) errorMessage.textContent = 'Please select your current timezone.';
-                    else errorMessage.textContent = 'Please complete all fields.';
+                    errorMessage.textContent = 'Please complete all fields correctly.';
                 }
             });
 
@@ -519,7 +495,7 @@
                                     document.querySelectorAll('.day-panel').forEach(panel => panel.classList.remove('day-panel-selected'));
                                     item.classList.add('day-panel-selected');
                                     selectedDate = day.date;
-                                    luckyNumbersContainer.classList.add('hidden'); // Hide old numbers
+                                    luckyNumbersContainer.classList.add('hidden');
                                     lotteryChoiceContainer.classList.remove('hidden');
                                     lotteryChoiceContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                                 });
@@ -532,7 +508,7 @@
                     resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
                     calculateBtn.textContent = 'Reveal My Lucky Times';
-                    validateInputs();
+                    validateAllInputs();
                 }, 100); 
             }
 
@@ -546,13 +522,10 @@
 
             function displayLuckyNumbers(numbers, type) {
                 luckyNumbersDisplay.innerHTML = '';
-                const mainNumbers = numbers.slice(0, numbers.length -1);
-                const specialNumber = numbers.length > 5 ? numbers[numbers.length - 1] : null;
-
                 const dateString = `${monthNames[selectedDate.getMonth()]} ${selectedDate.getDate()}, ${selectedDate.getFullYear()}`;
                 luckyNumbersTitle.textContent = `Your Lucky Numbers for ${dateString}:`;
 
-                let specialBallClass = 'bg-emerald-500/70'; // Default for state
+                let specialBallClass = 'bg-emerald-500/70';
                 if (type === 'powerball') specialBallClass = 'bg-red-600/70';
                 if (type === 'megamillions') specialBallClass = 'bg-purple-600/70';
 
@@ -569,7 +542,6 @@
                 luckyNumbersContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
 
-
             function generateLuckyNumbers(natalChart, drawDate, lotteryType) {
                 const transitingPlanets = getPlanetaryPositions(drawDate);
                 const natalValues = Object.values( natalChart );
@@ -578,16 +550,9 @@
                 let mainPool, specialPool, mainCount;
 
                 switch(lotteryType) {
-                    case 'powerball':
-                        mainPool = 69; specialPool = 26; mainCount = 5;
-                        break;
-                    case 'megamillions':
-                        mainPool = 70; specialPool = 25; mainCount = 5;
-                        break;
-                    case 'state':
-                    default:
-                        mainPool = 49; specialPool = 0; mainCount = 6;
-                        break;
+                    case 'powerball': mainPool = 69; specialPool = 26; mainCount = 5; break;
+                    case 'megamillions': mainPool = 70; specialPool = 25; mainCount = 5; break;
+                    case 'state': default: mainPool = 49; specialPool = 0; mainCount = 6; break;
                 }
 
                 for(let i = 0; i < natalValues.length; i++) {
